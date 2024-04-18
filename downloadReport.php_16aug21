@@ -1,0 +1,302 @@
+<?php
+include("cpDbConfig.php");
+function getSafeRequestValue($key){
+	$val = $_REQUEST[$key];
+	return isset($val)? $val:"";
+}
+
+$jsonData = getSafeRequestValue('jsonData');
+$jsonData=json_decode($jsonData);
+
+$loginEmpId = $jsonData->loginEmpId;
+$loginEmpRole = $jsonData->loginEmpRole;
+$isHoUser = $jsonData->isHoUser;
+$circleName = $jsonData->circleName;
+$operator = $jsonData->operator;
+$filterCircleName = $jsonData->filterCircleName;
+$filterProductType = $jsonData->filterProductType;
+$filterSrStatus = $jsonData->filterSrStatus;
+$filterStartDate = $jsonData->filterStartDate;
+$filterEndDate = $jsonData->filterEndDate;
+$reportType = $jsonData->reportType;
+
+if($loginEmpRole == "SnM"){
+	$loginEmpRole = "S&M";	
+}
+else if($loginEmpRole == "HO_SnM"){
+	$loginEmpRole = "HO_S&M";	
+}
+else if($loginEmpRole == "SnM_MIS_Head"){
+	$loginEmpRole = "S&M_MIS_Head";	
+}
+
+
+if($filterCircleName != ""){
+	$filterCircleName = implode("','", explode(",", $filterCircleName));
+}
+else{
+	$filterCircleName = implode("','", explode(",", $circleName));
+}
+
+$filterOperator = implode("','", explode(",", $operator));
+
+$filterSql = " and Operator in ('".$filterOperator."') and CIRCLE_NAME in ('".$filterCircleName."') ";
+if($filterProductType != ""){
+	$filterSql .= " and TAB_NAME = '".$filterProductType."' ";
+}
+
+
+if($reportType == 1){
+	if($filterStartDate != ""){
+		$filterSql .= " and CREATE_DATE >= '".$filterStartDate."' ";
+	}
+	if($filterEndDate != ""){
+		$filterSql .= " and CREATE_DATE <= '".$filterEndDate."' ";
+	}
+	 
+	$sql = "select t.CIRCLE_NAME, sum(t.sr_on) count_of_SR, sum(t.sp_on) count_of_SP, sum(t.so_on) count_of_SO, sum(t.rfi_on) count_of_RFI, sum(t.rfi_accepted_on) count_of_RFI_Accepted, sum(t.rfs_on) count_of_RFS from (SELECT CIRCLE_NAME, (case when SR_NUMBER is not null then 1 else 0 end) sr_on, (case when SP_NUMBER is not null then 1 else 0 end) sp_on, (case when SO_NUMBER is not null then 1 else 0 end) so_on, (case when RFI_DATE is not null then 1 else 0 end) rfi_on, (case when RFI_ACCEPTED_DATE is not null then 1 else 0 end) rfi_accepted_on, (case when RFS_DATE is not null then 1 else 0 end) rfs_on FROM `NBS_MASTER_HDR` where SR_NUMBER is not null ".$filterSql.") t GROUP by t.CIRCLE_NAME
+		UNION
+		select 'Grand Total' as CIRCLE_NAME, sum(t1.sr_on) count_of_SR, sum(t1.sp_on) count_of_SP, sum(t1.so_on) count_of_SO, sum(t1.rfi_on) count_of_RFI, 
+		sum(t1.rfi_accepted_on) count_of_RFI_Accepted, sum(t1.rfs_on) count_of_RFS from (select t.CIRCLE_NAME, sum(t.sr_on) as sr_on, sum(t.sp_on) as sp_on, 
+		sum(t.so_on) as so_on, sum(t.rfi_on) as rfi_on, sum(t.rfi_accepted_on) as rfi_accepted_on, sum(t.rfs_on) as rfs_on from 
+		(SELECT CIRCLE_NAME, (case when SR_NUMBER is not null then 1 else 0 end) sr_on, (case when SP_NUMBER is not null then 1 else 0 end) sp_on, 
+		(case when SO_NUMBER is not null then 1 else 0 end) so_on, (case when RFI_DATE is not null then 1 else 0 end) rfi_on, 
+		(case when RFI_ACCEPTED_DATE is not null then 1 else 0 end) rfi_accepted_on, (case when RFS_DATE is not null then 1 else 0 end) rfs_on 
+		FROM `NBS_MASTER_HDR` where SR_NUMBER is not null ".$filterSql.") 
+		t GROUP by t.CIRCLE_NAME) t1";
+
+	// echo $sql;	
+
+	$result = mysqli_query($conn,$sql);
+	$row=mysqli_fetch_assoc($result);
+	$columnName = array();
+	foreach ($row as $key => $value) {
+		array_push($columnName, $key);
+	}
+	
+	header('Content-Type: text/csv; charset=utf-8');
+	header('Content-Disposition: attachment; filename=SR_Summary_Report.csv');
+	$output = fopen('php://output', 'w');
+	fputcsv($output, $columnName);
+
+	mysqli_data_seek($result, 0);
+	while($row=mysqli_fetch_assoc($result)){
+		$exportData = array();
+		foreach ($columnName as $key => $value) {
+			array_push($exportData, $row[$value]);
+		}
+		fputcsv($output, $exportData);
+	}
+}
+
+else if($reportType == 2){
+	if($filterSrStatus == "SR"){
+		if($filterStartDate != "")
+			$filterSql .= " and h.SR_DATE >= '$filterStartDate' ";
+		else
+			$filterSql .= " and h.SR_DATE is not null ";
+	}
+	else if($filterSrStatus =="SP"){
+		if($filterStartDate != "")
+			$filterSql .= " and h.SP_DATE >= '$filterStartDate' ";
+		else
+			$filterSql .= " and h.SP_DATE is not null ";
+	}
+	else if($filterSrStatus =="SO"){
+		if($filterStartDate != "")
+			$filterSql .= " and h.SO_DATE >= '$filterStartDate' ";
+		else
+			$filterSql .= " and h.SO_DATE is not null ";
+	}
+	else if($filterSrStatus =="RFI"){
+		if($filterStartDate != "")
+			$filterSql .= " and h.RFI_DATE >= '$filterStartDate' ";
+		else
+			$filterSql .= " and h.RFI_DATE is not null ";
+	}
+	else if($filterSrStatus =="RFI Accepted"){
+		if($filterStartDate != "")
+			$filterSql .= " and h.RFI_ACCEPTED_DATE >= '$filterStartDate' ";
+		else
+			$filterSql .= " and h.RFI_ACCEPTED_DATE is not null ";
+	}
+	else if($filterSrStatus =="RFS"){
+		if($filterStartDate != "")
+			$filterSql .= " and h.RFS_DATE >= '$filterStartDate' ";
+		else
+			$filterSql .= " and h.RFS_DATE is not null ";
+	}
+	else{
+		if($filterStartDate != ""){
+			$filterSql .= " and h.CREATE_DATE >= '$filterStartDate' ";
+		}
+		else{
+			$filterSql .= " and h.CREATE_DATE >= '2020-07-01' ";
+		}
+	}
+
+	if($filterEndDate != ""){
+		if($filterSrStatus =="SR"){
+			$filterSql .= " and h.SR_DATE <= '$filterEndDate' ";
+		}
+		else if($filterSrStatus =="SP"){
+			$filterSql .= " and h.SP_DATE <= '$filterEndDate' ";
+		}
+		else if($filterSrStatus =="SO"){
+			$filterSql .= " and h.SO_DATE <= '$filterEndDate' ";
+		}
+		else if($filterSrStatus =="RFI"){
+			$filterSql .= " and h.RFI_DATE <= '$filterEndDate' ";
+		}
+		else if($filterSrStatus =="RFI Accepted"){
+			$filterSql .= " and h.RFI_ACCEPTED_DATE <= '$filterEndDate' ";
+		}
+		else if($filterSrStatus =="RFS"){
+			$filterSql .= " and h.RFS_DATE <= '$filterEndDate' ";
+		}
+	}
+	$sql = "SELECT h.SR_NUMBER, h.SP_NUMBER, h.SO_NUMBER, h.CIRCLE_NAME, h.AIRTEL_SITE_ID as Site_Id, h.TVI_SITE_ID, (case when h.TAB_NAME='CreateNBS' then 'Macro Anchor' else h.TAB_NAME end) as Product_Type, h.SR_DATE, h.SP_DATE, h.SO_DATE, h.LATITUDE_1, h.LONGITUDE_1, h.Operator, h.RFI_DATE, h.RFI_ACCEPTED_DATE, h.RFS_DATE, h.TECHNOLOGY, h.Total_Rated_Power_in_KW as Total_Rated_Power_in_Watt, h.Additional_Load,  
+		h.NO_OF_MICROWAVE, 
+		d1.MICROWAVE_HEIGHT as MICROWAVE_HEIGHT_1, d1.MICROWAVE_DIA as MICROWAVE_DIA_1, d1.MICROWAVE_AZIMUTH as MICROWAVE_AZIMUTH_1, 
+		d2.MICROWAVE_HEIGHT as MICROWAVE_HEIGHT_2, d2.MICROWAVE_DIA as MICROWAVE_DIA_2, d2.MICROWAVE_AZIMUTH as MICROWAVE_AZIMUTH_2, 
+		d3.MICROWAVE_HEIGHT as MICROWAVE_HEIGHT_3, d3.MICROWAVE_DIA as MICROWAVE_DIA_3, d3.MICROWAVE_AZIMUTH as MICROWAVE_AZIMUTH_3, 
+		d4.MICROWAVE_HEIGHT as MICROWAVE_HEIGHT_4, d4.MICROWAVE_DIA as MICROWAVE_DIA_4, d4.MICROWAVE_AZIMUTH as MICROWAVE_AZIMUTH_4, 
+		d5.MICROWAVE_HEIGHT as MICROWAVE_HEIGHT_5, d5.MICROWAVE_DIA as MICROWAVE_DIA_5, d5.MICROWAVE_AZIMUTH as MICROWAVE_AZIMUTH_5, 
+		d6.MICROWAVE_HEIGHT as MICROWAVE_HEIGHT_6, d6.MICROWAVE_DIA as MICROWAVE_DIA_6, d6.MICROWAVE_AZIMUTH as MICROWAVE_AZIMUTH_6,
+		h.NO_OF_RRU, 
+		rr1.RRU_MAKE as RRU_MAKE_1, rr1.RRU_MODEL as RRU_MODEL_1, rr1.RRU_RATED_POWER_CONSUMPTION as RRU_RATED_POWER_CONSUMPTION_1, rr1.RRU_WEIGHT as RRU_WEIGHT_1, 
+		rr2.RRU_MAKE as RRU_MAKE_2, rr2.RRU_MODEL as RRU_MODEL_2, rr2.RRU_RATED_POWER_CONSUMPTION as RRU_RATED_POWER_CONSUMPTION_2, rr2.RRU_WEIGHT as RRU_WEIGHT_2, 
+		rr3.RRU_MAKE as RRU_MAKE_3, rr3.RRU_MODEL as RRU_MODEL_3, rr3.RRU_RATED_POWER_CONSUMPTION as RRU_RATED_POWER_CONSUMPTION_3, rr3.RRU_WEIGHT as RRU_WEIGHT_3, 
+		rr4.RRU_MAKE as RRU_MAKE_4, rr4.RRU_MODEL as RRU_MODEL_4, rr4.RRU_RATED_POWER_CONSUMPTION as RRU_RATED_POWER_CONSUMPTION_4, rr4.RRU_WEIGHT as RRU_WEIGHT_4, 
+		rr5.RRU_MAKE as RRU_MAKE_5, rr5.RRU_MODEL as RRU_MODEL_5, rr5.RRU_RATED_POWER_CONSUMPTION as RRU_RATED_POWER_CONSUMPTION_5, rr5.RRU_WEIGHT as RRU_WEIGHT_5, 
+		rr6.RRU_MAKE as RRU_MAKE_6, rr6.RRU_MODEL as RRU_MODEL_6, rr6.RRU_RATED_POWER_CONSUMPTION as RRU_RATED_POWER_CONSUMPTION_6, rr6.RRU_WEIGHT as RRU_WEIGHT_6, 
+		rr7.RRU_MAKE as RRU_MAKE_7, rr7.RRU_MODEL as RRU_MODEL_7, rr7.RRU_RATED_POWER_CONSUMPTION as RRU_RATED_POWER_CONSUMPTION_7, rr7.RRU_WEIGHT as RRU_WEIGHT_7, 
+		rr8.RRU_MAKE as RRU_MAKE_8, rr8.RRU_MODEL as RRU_MODEL_8, rr8.RRU_RATED_POWER_CONSUMPTION as RRU_RATED_POWER_CONSUMPTION_8, rr8.RRU_WEIGHT as RRU_WEIGHT_8, 
+		rr9.RRU_MAKE as RRU_MAKE_9, rr9.RRU_MODEL as RRU_MODEL_9, rr9.RRU_RATED_POWER_CONSUMPTION as RRU_RATED_POWER_CONSUMPTION_9, rr9.RRU_WEIGHT as RRU_WEIGHT_9, 
+		rr10.RRU_MAKE as RRU_MAKE_10, rr10.RRU_MODEL as RRU_MODEL_10, rr10.RRU_RATED_POWER_CONSUMPTION as RRU_RATED_POWER_CONSUMPTION_10, rr10.RRU_WEIGHT as RRU_WEIGHT_10, 
+		rr11.RRU_MAKE as RRU_MAKE_11, rr11.RRU_MODEL as RRU_MODEL_11, rr11.RRU_RATED_POWER_CONSUMPTION as RRU_RATED_POWER_CONSUMPTION_11, rr11.RRU_WEIGHT as RRU_WEIGHT_11, 
+		rr12.RRU_MAKE as RRU_MAKE_12, rr12.RRU_MODEL as RRU_MODEL_12, rr12.RRU_RATED_POWER_CONSUMPTION as RRU_RATED_POWER_CONSUMPTION_12, rr12.RRU_WEIGHT as RRU_WEIGHT_12, 
+		rr13.RRU_MAKE as RRU_MAKE_13, rr13.RRU_MODEL as RRU_MODEL_13, rr13.RRU_RATED_POWER_CONSUMPTION as RRU_RATED_POWER_CONSUMPTION_13, rr13.RRU_WEIGHT as RRU_WEIGHT_13, 
+		rr14.RRU_MAKE as RRU_MAKE_14, rr14.RRU_MODEL as RRU_MODEL_14, rr14.RRU_RATED_POWER_CONSUMPTION as RRU_RATED_POWER_CONSUMPTION_14, rr14.RRU_WEIGHT as RRU_WEIGHT_14, 
+		rr15.RRU_MAKE as RRU_MAKE_15, rr15.RRU_MODEL as RRU_MODEL_15, rr15.RRU_RATED_POWER_CONSUMPTION as RRU_RATED_POWER_CONSUMPTION_15, rr15.RRU_WEIGHT as RRU_WEIGHT_15,
+		h.NO_OF_BTS, 
+		bts1.BTS_MAKE as BTS_MAKE_1, bts1.BTS_MODEL as BTS_MODEL_1, bts1.BTS_FLOOR_SPACE as BTS_FLOOR_SPACE_1, bts1.BTS_POWER as BTS_POWER_1, 
+		bts2.BTS_MAKE as BTS_MAKE_2, bts2.BTS_MODEL as BTS_MODEL_2, bts2.BTS_FLOOR_SPACE as BTS_FLOOR_SPACE_2, bts2.BTS_POWER as BTS_POWER_2, 
+		bts3.BTS_MAKE as BTS_MAKE_3, bts3.BTS_MODEL as BTS_MODEL_3, bts3.BTS_FLOOR_SPACE as BTS_FLOOR_SPACE_3, bts3.BTS_POWER as BTS_POWER_3, 
+		bts4.BTS_MAKE as BTS_MAKE_4, bts4.BTS_MODEL as BTS_MODEL_4, bts4.BTS_FLOOR_SPACE as BTS_FLOOR_SPACE_4, bts4.BTS_POWER as BTS_POWER_4,
+		h.NO_OF_BBU, 
+		bbu1.BBU_MAKE as BBU_MAKE_1, bbu1.BBU_MODEL as BBU_MODEL_1, bbu1.BBU_RATED_POWER_CONSUMPTION as BBU_RATED_POWER_CONSUMPTION_1,
+		bbu2.BBU_MAKE as BBU_MAKE_2, bbu2.BBU_MODEL as BBU_MODEL_2, bbu2.BBU_RATED_POWER_CONSUMPTION as BBU_RATED_POWER_CONSUMPTION_2,
+		bbu3.BBU_MAKE as BBU_MAKE_3, bbu3.BBU_MODEL as BBU_MODEL_3, bbu3.BBU_RATED_POWER_CONSUMPTION as BBU_RATED_POWER_CONSUMPTION_3,
+		bbu4.BBU_MAKE as BBU_MAKE_4, bbu4.BBU_MODEL as BBU_MODEL_4, bbu4.BBU_RATED_POWER_CONSUMPTION as BBU_RATED_POWER_CONSUMPTION_4,
+		bbu5.BBU_MAKE as BBU_MAKE_5, bbu5.BBU_MODEL as BBU_MODEL_5, bbu5.BBU_RATED_POWER_CONSUMPTION as BBU_RATED_POWER_CONSUMPTION_5,
+		bbu6.BBU_MAKE as BBU_MAKE_6, bbu6.BBU_MODEL as BBU_MODEL_6, bbu6.BBU_RATED_POWER_CONSUMPTION as BBU_RATED_POWER_CONSUMPTION_6,
+		h.NO_OF_RF_ANTENNA, 
+		rf1.RF_SIZE as RF_HEIGHT_1, rf1.RF_WEIGHT as RF_WEIGHT_1, rf1.RF_AZIMUTH as RF_AZIMUTH_1, rf1.RF_MAKE as RF_MAKE_1, rf1.RF_MODEL as RF_MODEL_1, rf1.RF_GAIN as RF_GAIN_1, rf1.RF_BAND as RF_BAND_1,
+		rf2.RF_SIZE as RF_HEIGHT_2, rf2.RF_WEIGHT as RF_WEIGHT_2, rf2.RF_AZIMUTH as RF_AZIMUTH_2, rf2.RF_MAKE as RF_MAKE_2, rf2.RF_MODEL as RF_MODEL_2, rf2.RF_GAIN as RF_GAIN_2, rf2.RF_BAND as RF_BAND_2,
+		rf3.RF_SIZE as RF_HEIGHT_3, rf3.RF_WEIGHT as RF_WEIGHT_3, rf3.RF_AZIMUTH as RF_AZIMUTH_3, rf3.RF_MAKE as RF_MAKE_3, rf3.RF_MODEL as RF_MODEL_3, rf3.RF_GAIN as RF_GAIN_3, rf3.RF_BAND as RF_BAND_3,
+		rf4.RF_SIZE as RF_HEIGHT_4, rf4.RF_WEIGHT as RF_WEIGHT_4, rf4.RF_AZIMUTH as RF_AZIMUTH_4, rf4.RF_MAKE as RF_MAKE_4, rf4.RF_MODEL as RF_MODEL_4, rf4.RF_GAIN as RF_GAIN_4, rf4.RF_BAND as RF_BAND_4,
+		rf5.RF_SIZE as RF_HEIGHT_5, rf5.RF_WEIGHT as RF_WEIGHT_5, rf5.RF_AZIMUTH as RF_AZIMUTH_5, rf5.RF_MAKE as RF_MAKE_5, rf5.RF_MODEL as RF_MODEL_5, rf5.RF_GAIN as RF_GAIN_5, rf5.RF_BAND as RF_BAND_5,
+		rf6.RF_SIZE as RF_HEIGHT_6, rf6.RF_WEIGHT as RF_WEIGHT_6, rf6.RF_AZIMUTH as RF_AZIMUTH_6, rf6.RF_MAKE as RF_MAKE_6, rf6.RF_MODEL as RF_MODEL_6, rf6.RF_GAIN as RF_GAIN_6, rf6.RF_BAND as RF_BAND_6,
+		rf7.RF_SIZE as RF_HEIGHT_7, rf7.RF_WEIGHT as RF_WEIGHT_7, rf7.RF_AZIMUTH as RF_AZIMUTH_7, rf7.RF_MAKE as RF_MAKE_7, rf7.RF_MODEL as RF_MODEL_7, rf7.RF_GAIN as RF_GAIN_7, rf7.RF_BAND as RF_BAND_7,
+		rf8.RF_SIZE as RF_HEIGHT_8, rf8.RF_WEIGHT as RF_WEIGHT_8, rf8.RF_AZIMUTH as RF_AZIMUTH_8, rf8.RF_MAKE as RF_MAKE_8, rf8.RF_MODEL as RF_MODEL_8, rf8.RF_GAIN as RF_GAIN_8, rf8.RF_BAND as RF_BAND_8,
+		rf9.RF_SIZE as RF_HEIGHT_9, rf9.RF_WEIGHT as RF_WEIGHT_9, rf9.RF_AZIMUTH as RF_AZIMUTH_9, rf9.RF_MAKE as RF_MAKE_9, rf9.RF_MODEL as RF_MODEL_9, rf9.RF_GAIN as RF_GAIN_9, rf9.RF_BAND as RF_BAND_9,
+		rf10.RF_SIZE as RF_HEIGHT_10, rf10.RF_WEIGHT as RF_WEIGHT_10, rf10.RF_AZIMUTH as RF_AZIMUTH_10, rf10.RF_MAKE as RF_MAKE_10, rf10.RF_MODEL as RF_MODEL_10, rf10.RF_GAIN as RF_GAIN_10, rf10.RF_BAND as RF_BAND_10,
+		h.NO_OF_MCB, 
+		mcb1.MCB_RATING as MCB_RATING_1,
+		mcb2.MCB_RATING as MCB_RATING_2,
+		mcb3.MCB_RATING as MCB_RATING_3,
+		mcb4.MCB_RATING as MCB_RATING_4,
+		mcb5.MCB_RATING as MCB_RATING_5,
+		mcb6.MCB_RATING as MCB_RATING_6,
+		mcb7.MCB_RATING as MCB_RATING_7,
+		mcb8.MCB_RATING as MCB_RATING_8,
+		mcb9.MCB_RATING as MCB_RATING_9,
+		mcb10.MCB_RATING as MCB_RATING_10
+
+		FROM NBS_MASTER_HDR h 
+		left join NBS_MASTER_DET d1 on h.SR_NUMBER = d1.SR_NUMBER and d1.TYPE = 'MICROWAVE' and d1.Type_No = 1  
+		left join NBS_MASTER_DET d2 on h.SR_NUMBER = d2.SR_NUMBER and d2.TYPE = 'MICROWAVE' and d2.Type_No = 2 
+		left join NBS_MASTER_DET d3 on h.SR_NUMBER = d3.SR_NUMBER and d3.TYPE = 'MICROWAVE' and d3.Type_No = 3  
+		left join NBS_MASTER_DET d4 on h.SR_NUMBER = d4.SR_NUMBER and d4.TYPE = 'MICROWAVE' and d4.Type_No = 4  
+		left join NBS_MASTER_DET d5 on h.SR_NUMBER = d5.SR_NUMBER and d5.TYPE = 'MICROWAVE' and d5.Type_No = 5  
+		left join NBS_MASTER_DET d6 on h.SR_NUMBER = d6.SR_NUMBER and d6.TYPE = 'MICROWAVE' and d6.Type_No = 6 
+		 
+		left join NBS_MASTER_DET rr1 on h.SR_NUMBER = rr1.SR_NUMBER and rr1.TYPE = 'RRU' and rr1.Type_No = 1  
+		left join NBS_MASTER_DET rr2 on h.SR_NUMBER = rr2.SR_NUMBER and rr2.TYPE = 'RRU' and rr2.Type_No = 2  
+		left join NBS_MASTER_DET rr3 on h.SR_NUMBER = rr3.SR_NUMBER and rr3.TYPE = 'RRU' and rr3.Type_No = 3  
+		left join NBS_MASTER_DET rr4 on h.SR_NUMBER = rr4.SR_NUMBER and rr4.TYPE = 'RRU' and rr4.Type_No = 4  
+		left join NBS_MASTER_DET rr5 on h.SR_NUMBER = rr5.SR_NUMBER and rr5.TYPE = 'RRU' and rr5.Type_No = 5  
+		left join NBS_MASTER_DET rr6 on h.SR_NUMBER = rr6.SR_NUMBER and rr6.TYPE = 'RRU' and rr6.Type_No = 6  
+		left join NBS_MASTER_DET rr7 on h.SR_NUMBER = rr7.SR_NUMBER and rr7.TYPE = 'RRU' and rr7.Type_No = 7  
+		left join NBS_MASTER_DET rr8 on h.SR_NUMBER = rr8.SR_NUMBER and rr8.TYPE = 'RRU' and rr8.Type_No = 8  
+		left join NBS_MASTER_DET rr9 on h.SR_NUMBER = rr9.SR_NUMBER and rr9.TYPE = 'RRU' and rr9.Type_No = 9  
+		left join NBS_MASTER_DET rr10 on h.SR_NUMBER = rr10.SR_NUMBER and rr10.TYPE = 'RRU' and rr10.Type_No = 10  
+		left join NBS_MASTER_DET rr11 on h.SR_NUMBER = rr11.SR_NUMBER and rr11.TYPE = 'RRU' and rr11.Type_No = 11  
+		left join NBS_MASTER_DET rr12 on h.SR_NUMBER = rr12.SR_NUMBER and rr12.TYPE = 'RRU' and rr12.Type_No = 12  
+		left join NBS_MASTER_DET rr13 on h.SR_NUMBER = rr13.SR_NUMBER and rr13.TYPE = 'RRU' and rr13.Type_No = 13  
+		left join NBS_MASTER_DET rr14 on h.SR_NUMBER = rr14.SR_NUMBER and rr14.TYPE = 'RRU' and rr14.Type_No = 14  
+		left join NBS_MASTER_DET rr15 on h.SR_NUMBER = rr15.SR_NUMBER and rr15.TYPE = 'RRU' and rr15.Type_No = 15
+		  
+		left join NBS_MASTER_DET bts1 on h.SR_NUMBER = bts1.SR_NUMBER and bts1.TYPE = 'BTS' and bts1.Type_No = 1  
+		left join NBS_MASTER_DET bts2 on h.SR_NUMBER = bts2.SR_NUMBER and bts2.TYPE = 'BTS' and bts2.Type_No = 2  
+		left join NBS_MASTER_DET bts3 on h.SR_NUMBER = bts3.SR_NUMBER and bts3.TYPE = 'BTS' and bts3.Type_No = 3  
+		left join NBS_MASTER_DET bts4 on h.SR_NUMBER = bts4.SR_NUMBER and bts4.TYPE = 'BTS' and bts4.Type_No = 4 
+		 
+		left join NBS_MASTER_DET bbu1 on h.SR_NUMBER = bbu1.SR_NUMBER and bbu1.TYPE = 'BBU' and bbu1.Type_No = 1  
+		left join NBS_MASTER_DET bbu2 on h.SR_NUMBER = bbu2.SR_NUMBER and bbu2.TYPE = 'BBU' and bbu2.Type_No = 2  
+		left join NBS_MASTER_DET bbu3 on h.SR_NUMBER = bbu3.SR_NUMBER and bbu3.TYPE = 'BBU' and bbu3.Type_No = 3  
+		left join NBS_MASTER_DET bbu4 on h.SR_NUMBER = bbu4.SR_NUMBER and bbu4.TYPE = 'BBU' and bbu4.Type_No = 4  
+		left join NBS_MASTER_DET bbu5 on h.SR_NUMBER = bbu5.SR_NUMBER and bbu5.TYPE = 'BBU' and bbu5.Type_No = 5  
+		left join NBS_MASTER_DET bbu6 on h.SR_NUMBER = bbu6.SR_NUMBER and bbu6.TYPE = 'BBU' and bbu6.Type_No = 6  
+
+		left join NBS_MASTER_DET rf1 on h.SR_NUMBER = rf1.SR_NUMBER and rf1.TYPE = 'RF_ANTENNA' and rf1.Type_No = 1  
+		left join NBS_MASTER_DET rf2 on h.SR_NUMBER = rf2.SR_NUMBER and rf2.TYPE = 'RF_ANTENNA' and rf2.Type_No = 2  
+		left join NBS_MASTER_DET rf3 on h.SR_NUMBER = rf3.SR_NUMBER and rf3.TYPE = 'RF_ANTENNA' and rf3.Type_No = 3  
+		left join NBS_MASTER_DET rf4 on h.SR_NUMBER = rf4.SR_NUMBER and rf4.TYPE = 'RF_ANTENNA' and rf4.Type_No = 4  
+		left join NBS_MASTER_DET rf5 on h.SR_NUMBER = rf5.SR_NUMBER and rf5.TYPE = 'RF_ANTENNA' and rf5.Type_No = 5  
+		left join NBS_MASTER_DET rf6 on h.SR_NUMBER = rf6.SR_NUMBER and rf6.TYPE = 'RF_ANTENNA' and rf6.Type_No = 6  
+		left join NBS_MASTER_DET rf7 on h.SR_NUMBER = rf7.SR_NUMBER and rf7.TYPE = 'RF_ANTENNA' and rf7.Type_No = 7  
+		left join NBS_MASTER_DET rf8 on h.SR_NUMBER = rf8.SR_NUMBER and rf8.TYPE = 'RF_ANTENNA' and rf8.Type_No = 8  
+		left join NBS_MASTER_DET rf9 on h.SR_NUMBER = rf9.SR_NUMBER and rf9.TYPE = 'RF_ANTENNA' and rf9.Type_No = 9  
+		left join NBS_MASTER_DET rf10 on h.SR_NUMBER = rf10.SR_NUMBER and rf10.TYPE = 'RF_ANTENNA' and rf10.Type_No = 10 
+
+		left join NBS_MASTER_DET mcb1 on h.SR_NUMBER = mcb1.SR_NUMBER and mcb1.TYPE = 'MCB' and mcb1.Type_No = 1
+		left join NBS_MASTER_DET mcb2 on h.SR_NUMBER = mcb2.SR_NUMBER and mcb2.TYPE = 'MCB' and mcb2.Type_No = 2
+		left join NBS_MASTER_DET mcb3 on h.SR_NUMBER = mcb3.SR_NUMBER and mcb3.TYPE = 'MCB' and mcb3.Type_No = 3
+		left join NBS_MASTER_DET mcb4 on h.SR_NUMBER = mcb4.SR_NUMBER and mcb4.TYPE = 'MCB' and mcb4.Type_No = 4
+		left join NBS_MASTER_DET mcb5 on h.SR_NUMBER = mcb5.SR_NUMBER and mcb5.TYPE = 'MCB' and mcb5.Type_No = 5
+		left join NBS_MASTER_DET mcb6 on h.SR_NUMBER = mcb6.SR_NUMBER and mcb6.TYPE = 'MCB' and mcb6.Type_No = 6
+		left join NBS_MASTER_DET mcb7 on h.SR_NUMBER = mcb7.SR_NUMBER and mcb7.TYPE = 'MCB' and mcb7.Type_No = 7
+		left join NBS_MASTER_DET mcb8 on h.SR_NUMBER = mcb8.SR_NUMBER and mcb8.TYPE = 'MCB' and mcb8.Type_No = 8
+		left join NBS_MASTER_DET mcb9 on h.SR_NUMBER = mcb9.SR_NUMBER and mcb9.TYPE = 'MCB' and mcb9.Type_No = 9
+		left join NBS_MASTER_DET mcb10 on h.SR_NUMBER = mcb10.SR_NUMBER and mcb10.TYPE = 'MCB' and mcb10.Type_No = 10
+		where h.SR_NUMBER is not null ".$filterSql."
+		GROUP by h.SR_NUMBER";
+
+		// echo $sql;
+
+	$result = mysqli_query($conn,$sql);
+	$row=mysqli_fetch_assoc($result);
+	$columnName = array();
+	foreach ($row as $key => $value) {
+		array_push($columnName, $key);
+	}
+	
+	header('Content-Type: text/csv; charset=utf-8');
+	header('Content-Disposition: attachment; filename=SR_Detail_Report.csv');
+	$output = fopen('php://output', 'w');
+	fputcsv($output, $columnName);
+
+	mysqli_data_seek($result, 0);
+	while($row=mysqli_fetch_assoc($result)){
+		$exportData = array();
+		foreach ($columnName as $key => $value) {
+			array_push($exportData, $row[$value]);
+		}
+		fputcsv($output, $exportData);
+	}
+}
+
+
+?>

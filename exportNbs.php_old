@@ -1,0 +1,164 @@
+<?php
+include("cpDbConfig.php");
+function getSafeRequestValue($key){
+	$val = $_REQUEST[$key];
+	return isset($val)? $val:"";
+}
+
+$jsonData = getSafeRequestValue('jsonData');
+$jsonData=json_decode($jsonData);
+
+
+
+$loginEmpId = $jsonData->loginEmpId;
+$loginEmpRole = $jsonData->loginEmpRole;
+$isHoUser = $jsonData->isHoUser;
+$circleName = $jsonData->circleName;
+$operator = $jsonData->operator;
+$isNBS = $jsonData->isNBS;
+$filterSrNumber = $jsonData->filterSrNumber;
+$filterCircleName = $jsonData->filterCircleName;
+$filterProductType = $jsonData->filterProductType;
+$filterStartDate = $jsonData->filterStartDate;
+$filterEndDate = $jsonData->filterEndDate;
+
+if($loginEmpRole == "SnM"){
+	$loginEmpRole = "S&M";	
+}
+else if($loginEmpRole == "HO_SnM"){
+	$loginEmpRole = "HO_S&M";	
+}
+else if($loginEmpRole == "SnM_MIS_Head"){
+	$loginEmpRole = "S&M_MIS_Head";	
+}
+
+
+
+$sql = "select h.SR_NUMBER as SR_Number, (case when h.SP_NUMBER is not null then h.SP_NUMBER else '' end) as SP_Number, 
+(case when h.SO_NUMBER is not null then h.SO_NUMBER else '' end) as SO_Number, 
+(case when h.AIRTEL_SITE_ID is not null then h.AIRTEL_SITE_ID  else '' end) as Site_Id, 
+(case when h.Site_Name is not null then h.Site_Name else '' end) as Site_Name, 
+(case when h.STATUS = 'NB10' or h.STATUS = 'NB11' or h.STATUS = 'NB12' or h.STATUS = 'NB13' or h.STATUS = 'NB14' or h.STATUS = 'NB15' or h.STATUS = 'NB16' 
+or h.STATUS = 'NB17' or h.STATUS = 'NB18' or h.STATUS = 'NB19' or h.STATUS = 'NB20' or h.STATUS = 'RNB15' or h.STATUS = 'RNB16' then 
+h.SUGGESTED_LATITUDE else h.LATITUDE_1 end) as Latitude, 
+(case when h.STATUS = 'NB10' or h.STATUS = 'NB11' or h.STATUS = 'NB12' or h.STATUS = 'NB13' or h.STATUS = 'NB14' or h.STATUS = 'NB15' or h.STATUS = 'NB16' 
+or h.STATUS = 'NB17' or h.STATUS = 'NB18' or h.STATUS = 'NB19' or h.STATUS = 'NB20' or h.STATUS = 'RNB15' or h.STATUS = 'RNB16' then 
+h.SUGGESTED_LONGITUDE else h.LONGITUDE_1 end) as Longitude, 
+(h.Operator) as Operator, 
+(case when h.TAB_NAME = 'CreateNBS' then 'Macro Anchor' when h.TAB_NAME = 'ODSC_Anchor' then 'ODSC Anchor' else '' end) as Product_Type, 
+(case when h.SR_DATE is not null then h.SR_DATE else '' end) as SR_Raise_Date, (case when h.SP_DATE is not null then h.SP_DATE else '' end) as SP_Raise_Date, 
+(case when h.SO_DATE is not null then h.SO_DATE else '' end) as SO_Raise_Date, (case when h.RFI_DATE is not null then h.RFI_DATE else '' end ) as RFI_Date, 
+(case when h.RFI_ACCEPTED_DATE is not null then h.RFI_ACCEPTED_DATE else '' end) as RFI_Accepted_Date, 
+(case when h.RFS_DATE is not null then h.RFS_DATE else '' end) as RFS_Date, (h.CIRCLE_NAME) as Circle_Name, "; 
+
+if($loginEmpRole != 'OPCO'){
+	$sql .= "(SELECT s.DESCRIPTION FROM `NBS_STATUS` s where s.STATUS = h.STATUS and s.Is_NBS = 'Y') as Pending_For ";
+}
+else {
+	$sql .= " (case when h.STATUS = 'NB19' or h.STATUS = 'NB100' then (SELECT s.DESCRIPTION FROM `NBS_STATUS` s where s.STATUS = h.STATUS and s.Is_NBS = 'Y') else 'WIP' end) as Pending_For ";
+}
+
+$inOpNbs = prepareInOperatorStr(explode(",", $isNBS));
+$sql .= "from NBS_MASTER_HDR h where h.Is_NBS in ($inOpNbs) ";
+
+if($isNBS == "Y,N"){
+	$approvalFlowSql = "SELECT `Status` FROM `Approval_Flow` where `User_Role` = '$loginEmpRole' and `is_NBS` in ($inOpNbs) and `Is_Active` = 'Y' ";
+	$approvalFlowResult = mysqli_query($conn,$approvalFlowSql);
+	$statusList = [];
+	while($row = mysqli_fetch_assoc($approvalFlowResult)){
+		$status = $row["Status"];
+		$statusExplode = explode(",", $status);
+		for($i=0;$i<count($statusExplode);$i++){
+			array_push($statusList, $statusExplode[$i]);
+		}
+	}
+
+	$inOpStatus = prepareInOperatorStr($statusList);
+	$sql .= "and h.STATUS in ($inOpStatus) "; 
+}
+
+
+if($operator != 'TVI'){
+	$sql .= " and h.Operator = '$operator' ";
+}
+
+if($filterSrNumber != ""){
+	$sql .= " and (h.SR_NUMBER like '%$filterSrNumber%' or  h.SP_NUMBER like '%$filterSrNumber%' or h.SO_NUMBER like '%$filterSrNumber%') ";
+}
+
+if($filterCircleName != ""){
+	$sql .= " and h.CIRCLE_NAME = '$filterCircleName' ";
+}
+else{
+	$inOpCircle = prepareInOperatorStr(explode(",", $circleName));
+	$sql .= " and h.CIRCLE_NAME in ($inOpCircle) ";
+}
+
+if($filterProductType != ""){
+	$sql .= " and h.TAB_NAME = '$filterProductType' ";
+}
+
+if($filterStartDate != ""){
+	$sql .= " and h.CREATE_DATE >= '$filterStartDate' ";
+}else{
+	$sql .= " and h.CREATE_DATE >= '2020-07-01' ";
+}
+
+if($filterEndDate != ""){
+	$sql .= " and h.CREATE_DATE <= '$filterEndDate' ";
+}
+$sql .= " order by h.CREATE_DATE desc ";
+
+// echo $sql;
+
+$result = mysqli_query($conn,$sql);
+$fieldcount=mysqli_num_fields($result);
+
+header("Content-Type: application/xls");    
+header("Content-Disposition: attachment; filename=TVI_Report.xls");  
+header("Pragma: no-cache"); 
+header("Expires: 0");
+
+$sep = "\t"; 
+
+while ($fieldinfo = $result -> fetch_field()) {
+	echo $fieldinfo -> name . "\t";
+}
+echo "\n";    
+
+
+while($row = mysqli_fetch_row($result))
+{
+	$schema_insert = "";
+	for($j=0; $j < $fieldcount; $j++)
+	{
+		if(!isset($row[$j]))
+			$schema_insert .= "NULL".$sep;
+		elseif ($row[$j] != "")
+			$schema_insert .= $row[$j].$sep;
+		else
+			$schema_insert .= "".$sep;
+	}
+	$schema_insert = str_replace($sep."$", "", $schema_insert);
+	$schema_insert = preg_replace("/\r\n|\n\r|\n|\r/", " ", $schema_insert);
+	$schema_insert .= "\t";
+	print(trim($schema_insert));
+	print "\n";
+}
+
+?>
+
+<?php
+function prepareInOperatorStr($dataList){
+	$inOperatorStr = "";
+	for($i=0;$i<count($dataList);$i++){
+		$inOperatorStr .= "'".$dataList[$i]. "'";
+		if($i < count($dataList)-1){
+			$inOperatorStr .= ',';
+		}
+	}
+	return $inOperatorStr;
+}
+?>
+
+
