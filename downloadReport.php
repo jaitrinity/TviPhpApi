@@ -52,7 +52,7 @@ if($filterProductType != ""){
 	$filterSql .= " and TAB_NAME = '".$filterProductType."' ";
 }
 
-
+// Summary Report
 if($reportType == 1){
 	// if($filterStartDate != ""){
 	// 	$filterSql .= " and CREATE_DATE >= '".$filterStartDate."' ";
@@ -164,7 +164,7 @@ if($reportType == 1){
 		fputcsv($output, $exportData);
 	}
 }
-
+// Detail Report
 else if($reportType == 2){
 	if($filterSrStatus == "SR"){
 		if($filterStartDate != "")
@@ -237,8 +237,10 @@ else if($reportType == 2){
 	$sql = "SELECT h.SR_NUMBER, h.SP_NUMBER, h.SO_NUMBER, h.CIRCLE_NAME, h.AIRTEL_SITE_ID as Site_Id, h.TVI_SITE_ID, 
 	(case when h.TAB_NAME='CreateNBS' then 'Macro Anchor' else h.TAB_NAME end) as Product_Type, 
 	h.SR_DATE, h.SP_DATE, h.SO_DATE, 
-	(case when h.SUGGESTED_LATITUDE is not null then h.SUGGESTED_LATITUDE else h.LATITUDE_1 end) LATITUDE, 
-	(case when h.SUGGESTED_LONGITUDE is not null then h.SUGGESTED_LONGITUDE else h.LONGITUDE_1 end) LONGITUDE, 
+	h.LATITUDE_1 as LATITUDE, h.LONGITUDE_1 as LONGITUDE,
+	-- (case when h.SUGGESTED_LATITUDE is not null then h.SUGGESTED_LATITUDE else h.LATITUDE_1 end) LATITUDE, 
+	-- (case when h.SUGGESTED_LONGITUDE is not null then h.SUGGESTED_LONGITUDE else h.LONGITUDE_1 end) LONGITUDE, 
+	h.SUGGESTED_LATITUDE as Acquired_Lat, h.SUGGESTED_LONGITUDE as Acquired_Long,
 	h.Operator, h.RFI_DATE, h.RFI_ACCEPTED_DATE, h.RFS_DATE, h.Site_Name, 
 	(case when h.SUGGESTED_SITE_TYPE is not null then h.SUGGESTED_SITE_TYPE else h.SITE_TYPE end) as Tower_Type, h.TECHNOLOGY, h.BTS_TYPE, h.Sharing_Potential,
 	h.Total_Rated_Power_in_KW as Total_Rated_Power_in_Watt, h.Additional_Load, h.Power_Rating_Of_Equipment, 
