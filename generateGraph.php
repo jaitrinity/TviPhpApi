@@ -19,6 +19,8 @@ $filterOperator = $jsonData->filterOperator;
 $filterCircleName = $jsonData->filterCircleName;
 $graphType = $jsonData->graphType;
 
+$notInStatus = "'NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108','NB110'";
+
 // $allOperator = "Airtel,BSNL,RJIO,VIL";
 $allCircle = "AP,BH,CG,DL,GJ,HP,HR,JH,JK,KL,KT,MH,MP,OR,PB,RJ,TN,UPE,UPW,WB";
 
@@ -58,7 +60,7 @@ if($graphType == 1){
 		$sqlList = array();
 		for($i=0;$i<count($circleList);$i++){
 			$loopCircleName = $circleList[$i];
-			$sql = "SELECT '$loopCircleName' as `CircleCode`,  count(*) as `TotalSR` FROM `Airtel_SR` where `SP_DATE` is null and `CircleCode`='$loopCircleName' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+			$sql = "SELECT '$loopCircleName' as `CircleCode`,  count(*) as `TotalSR` FROM `Airtel_SR` where `SP_DATE` is null and `CircleCode`='$loopCircleName' and `STATUS` not in ($notInStatus) $filterSql";
 			array_push($sqlList, $sql);
 		}
 
@@ -83,7 +85,7 @@ if($graphType == 1){
 		$sqlList = array();
 		for($i=0;$i<count($circleList);$i++){
 			$loopCircleName = $circleList[$i];
-			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SP_DATE` is null and `Operator`='RJIO' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SP_DATE` is null and `Operator`='RJIO' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ($notInStatus) $filterSql";
 			array_push($sqlList, $sql);
 		}
 
@@ -108,7 +110,7 @@ if($graphType == 1){
 		$sqlList = array();
 		for($i=0;$i<count($circleList);$i++){
 			$loopCircleName = $circleList[$i];
-			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SP_DATE` is null and `Operator`='BSNL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SP_DATE` is null and `Operator`='BSNL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ($notInStatus) $filterSql";
 			array_push($sqlList, $sql);
 		}
 
@@ -133,7 +135,7 @@ if($graphType == 1){
 		$sqlList = array();
 		for($i=0;$i<count($circleList);$i++){
 			$loopCircleName = $circleList[$i];
-			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SP_DATE` is null and `Operator`='VIL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SP_DATE` is null and `Operator`='VIL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ($notInStatus) $filterSql";
 			array_push($sqlList, $sql);
 		}
 
@@ -158,7 +160,7 @@ if($graphType == 1){
 		// $sqlList = array();
 		// for($i=0;$i<count($circleList);$i++){
 		// 	$loopCircleName = $circleList[$i];
-		// 	$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SP_DATE` is null and `Operator`='TCL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+		// 	$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SP_DATE` is null and `Operator`='TCL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ($notInStatus) $filterSql";
 		// 	array_push($sqlList, $sql);
 		// }
 
@@ -205,7 +207,7 @@ else if($graphType == 2){
 		$sqlList = array();
 		for($i=0;$i<count($circleList);$i++){
 			$loopCircleName = $circleList[$i];
-			$sql = "SELECT '$loopCircleName' as `CircleCode`,  count(*) as `TotalSR` FROM `Airtel_SR` where `SP_DATE` is not null and `SO_DATE` is null and `CircleCode`='$loopCircleName' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+			$sql = "SELECT '$loopCircleName' as `CircleCode`,  count(*) as `TotalSR` FROM `Airtel_SR` where `SP_DATE` is not null and `SO_DATE` is null and `CircleCode`='$loopCircleName' and `STATUS` not in ($notInStatus) $filterSql";
 			array_push($sqlList, $sql);
 		}
 
@@ -229,7 +231,7 @@ else if($graphType == 2){
 		$sqlList = array();
 		for($i=0;$i<count($circleList);$i++){
 			$loopCircleName = $circleList[$i];
-			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is null and `Operator`='RJIO' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is null and `Operator`='RJIO' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ($notInStatus) $filterSql";
 			array_push($sqlList, $sql);
 		}
 
@@ -254,7 +256,7 @@ else if($graphType == 2){
 		$sqlList = array();
 		for($i=0;$i<count($circleList);$i++){
 			$loopCircleName = $circleList[$i];
-			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is null and `Operator`='BSNL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is null and `Operator`='BSNL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ($notInStatus) $filterSql";
 			array_push($sqlList, $sql);
 		}
 
@@ -279,7 +281,7 @@ else if($graphType == 2){
 		$sqlList = array();
 		for($i=0;$i<count($circleList);$i++){
 			$loopCircleName = $circleList[$i];
-			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is null and `Operator`='VIL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is null and `Operator`='VIL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ($notInStatus) $filterSql";
 			array_push($sqlList, $sql);
 		}
 
@@ -304,7 +306,7 @@ else if($graphType == 2){
 		// $sqlList = array();
 		// for($i=0;$i<count($circleList);$i++){
 		// 	$loopCircleName = $circleList[$i];
-		// 	$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is null and `Operator`='TCL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+		// 	$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is null and `Operator`='TCL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ($notInStatus) $filterSql";
 		// 	array_push($sqlList, $sql);
 		// }
 
@@ -353,7 +355,7 @@ else if($graphType == 3){
 		$sqlList = array();
 		for($i=0;$i<count($circleList);$i++){
 			$loopCircleName = $circleList[$i];
-			$sql = "SELECT '$loopCircleName' as `CircleCode`,  count(*) as `TotalSR` FROM `Airtel_SR` where `SO_DATE` is not null and `RFI_DATE` is null and `CircleCode`='$loopCircleName' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+			$sql = "SELECT '$loopCircleName' as `CircleCode`,  count(*) as `TotalSR` FROM `Airtel_SR` where `SO_DATE` is not null and `RFI_DATE` is null and `CircleCode`='$loopCircleName' and `STATUS` not in ($notInStatus) $filterSql";
 			array_push($sqlList, $sql);
 		}
 
@@ -377,7 +379,7 @@ else if($graphType == 3){
 		$sqlList = array();
 		for($i=0;$i<count($circleList);$i++){
 			$loopCircleName = $circleList[$i];
-			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is null and `Operator`='RJIO' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is null and `Operator`='RJIO' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ($notInStatus) $filterSql";
 			array_push($sqlList, $sql);
 		}
 
@@ -402,7 +404,7 @@ else if($graphType == 3){
 		$sqlList = array();
 		for($i=0;$i<count($circleList);$i++){
 			$loopCircleName = $circleList[$i];
-			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is null and `Operator`='BSNL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is null and `Operator`='BSNL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ($notInStatus) $filterSql";
 			array_push($sqlList, $sql);
 		}
 
@@ -427,7 +429,7 @@ else if($graphType == 3){
 		$sqlList = array();
 		for($i=0;$i<count($circleList);$i++){
 			$loopCircleName = $circleList[$i];
-			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is null and `Operator`='VIL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is null and `Operator`='VIL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ($notInStatus) $filterSql";
 			array_push($sqlList, $sql);
 		}
 
@@ -452,7 +454,7 @@ else if($graphType == 3){
 		// $sqlList = array();
 		// for($i=0;$i<count($circleList);$i++){
 		// 	$loopCircleName = $circleList[$i];
-		// 	$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is null and `Operator`='TCL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+		// 	$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is null and `Operator`='TCL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ($notInStatus) $filterSql";
 		// 	array_push($sqlList, $sql);
 		// }
 
@@ -499,7 +501,7 @@ else if($graphType == 'RFI'){
 		$sqlList = array();
 		for($i=0;$i<count($circleList);$i++){
 			$loopCircleName = $circleList[$i];
-			$sql = "SELECT '$loopCircleName' as `CircleCode`,  count(*) as `TotalSR` FROM `Airtel_SR` where `RFI_DATE` is not null and `CircleCode`='$loopCircleName' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+			$sql = "SELECT '$loopCircleName' as `CircleCode`,  count(*) as `TotalSR` FROM `Airtel_SR` where `RFI_DATE` is not null and `CircleCode`='$loopCircleName' and `STATUS` not in ($notInStatus) $filterSql";
 			array_push($sqlList, $sql);
 		}
 
@@ -523,7 +525,7 @@ else if($graphType == 'RFI'){
 		$sqlList = array();
 		for($i=0;$i<count($circleList);$i++){
 			$loopCircleName = $circleList[$i];
-			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='RJIO' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='RJIO' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ($notInStatus) $filterSql";
 			array_push($sqlList, $sql);
 		}
 
@@ -548,7 +550,7 @@ else if($graphType == 'RFI'){
 		$sqlList = array();
 		for($i=0;$i<count($circleList);$i++){
 			$loopCircleName = $circleList[$i];
-			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='BSNL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='BSNL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ($notInStatus) $filterSql";
 			array_push($sqlList, $sql);
 		}
 
@@ -573,7 +575,7 @@ else if($graphType == 'RFI'){
 		$sqlList = array();
 		for($i=0;$i<count($circleList);$i++){
 			$loopCircleName = $circleList[$i];
-			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='VIL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+			$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='VIL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ($notInStatus) $filterSql";
 			array_push($sqlList, $sql);
 		}
 
@@ -598,7 +600,7 @@ else if($graphType == 'RFI'){
 		// $sqlList = array();
 		// for($i=0;$i<count($circleList);$i++){
 		// 	$loopCircleName = $circleList[$i];
-		// 	$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='TCL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+		// 	$sql = "SELECT '$loopCircleName' as `CircleCode`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='TCL' and `CIRCLE_NAME`='$loopCircleName' and `STATUS` not in ($notInStatus) $filterSql";
 		// 	array_push($sqlList, $sql);
 		// }
 
@@ -1089,19 +1091,19 @@ else if($graphType == "soSom"){
 	}
 
 	$sqlList = array();
-	$sql = "SELECT 'Airtel' as `Operator`, count(*) as `TotalSR` FROM `Airtel_SR` where `SO_DATE` is not null and `RFI_DATE` is null and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+	$sql = "SELECT 'Airtel' as `Operator`, count(*) as `TotalSR` FROM `Airtel_SR` where `SO_DATE` is not null and `RFI_DATE` is null and `STATUS` not in ($notInStatus) $filterSql";
 	array_push($sqlList, $sql);
 
-	$sql = "SELECT 'RJIO' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is not null and `RFI_DATE` is null and `Operator`='RJIO' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+	$sql = "SELECT 'RJIO' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is not null and `RFI_DATE` is null and `Operator`='RJIO' and `STATUS` not in ($notInStatus) $filterSql";
 	array_push($sqlList, $sql);
 
-	$sql = "SELECT 'BSNL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is not null and `RFI_DATE` is null and `Operator`='BSNL' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+	$sql = "SELECT 'BSNL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is not null and `RFI_DATE` is null and `Operator`='BSNL' and `STATUS` not in ($notInStatus) $filterSql";
 	array_push($sqlList, $sql);
 
-	$sql = "SELECT 'VIL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is not null and `RFI_DATE` is null and `Operator`='VIL' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+	$sql = "SELECT 'VIL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is not null and `RFI_DATE` is null and `Operator`='VIL' and `STATUS` not in ($notInStatus) $filterSql";
 	array_push($sqlList, $sql);
 
-	// $sql = "SELECT 'TCL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is not null and `RFI_DATE` is null and `Operator`='TCL' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+	// $sql = "SELECT 'TCL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is not null and `RFI_DATE` is null and `Operator`='TCL' and `STATUS` not in ($notInStatus) $filterSql";
 	// array_push($sqlList, $sql);
 
 	$uniSql = implode(" UNION ALL ", $sqlList);
@@ -1165,19 +1167,19 @@ else if($graphType == "rfiSom"){
 	}
 
 	$sqlList = array();
-	$sql = "SELECT 'Airtel' as `Operator`, count(*) as `TotalSR` FROM `Airtel_SR` where `RFI_DATE` is not null and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+	$sql = "SELECT 'Airtel' as `Operator`, count(*) as `TotalSR` FROM `Airtel_SR` where `RFI_DATE` is not null and `STATUS` not in ($notInStatus) $filterSql";
 	array_push($sqlList, $sql);
 
-	$sql = "SELECT 'RJIO' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='RJIO' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+	$sql = "SELECT 'RJIO' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='RJIO' and `STATUS` not in ($notInStatus) $filterSql";
 	array_push($sqlList, $sql);
 
-	$sql = "SELECT 'BSNL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='BSNL' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+	$sql = "SELECT 'BSNL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='BSNL' and `STATUS` not in ($notInStatus) $filterSql";
 	array_push($sqlList, $sql);
 
-	$sql = "SELECT 'VIL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='VIL' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+	$sql = "SELECT 'VIL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='VIL' and `STATUS` not in ($notInStatus) $filterSql";
 	array_push($sqlList, $sql);
 
-	// $sql = "SELECT 'TCL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `RFI_DATE` is null and `Operator`='TCL' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+	// $sql = "SELECT 'TCL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `RFI_DATE` is null and `Operator`='TCL' and `STATUS` not in ($notInStatus) $filterSql";
 	// array_push($sqlList, $sql);
 
 	$uniSql = implode(" UNION ALL ", $sqlList);
@@ -1240,19 +1242,19 @@ else if($graphType == "rfiSom"){
 // 	}
 
 // 	$sqlList = array();
-// 	$sql = "SELECT 'Airtel' as `Operator`, count(*) as `TotalSR` FROM `Airtel_SR` where `RFI_DATE` is not null and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+// 	$sql = "SELECT 'Airtel' as `Operator`, count(*) as `TotalSR` FROM `Airtel_SR` where `RFI_DATE` is not null and `STATUS` not in ($notInStatus) $filterSql";
 // 	array_push($sqlList, $sql);
 
-// 	$sql = "SELECT 'RJIO' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='RJIO' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+// 	$sql = "SELECT 'RJIO' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='RJIO' and `STATUS` not in ($notInStatus) $filterSql";
 // 	array_push($sqlList, $sql);
 
-// 	$sql = "SELECT 'BSNL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='BSNL' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+// 	$sql = "SELECT 'BSNL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='BSNL' and `STATUS` not in ($notInStatus) $filterSql";
 // 	array_push($sqlList, $sql);
 
-// 	$sql = "SELECT 'VIL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='VIL' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+// 	$sql = "SELECT 'VIL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='VIL' and `STATUS` not in ($notInStatus) $filterSql";
 // 	array_push($sqlList, $sql);
 
-// 	// $sql = "SELECT 'TCL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `RFI_DATE` is null and `Operator`='TCL' and `STATUS` not in ('NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB106','NB107','NB108') $filterSql";
+// 	// $sql = "SELECT 'TCL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `RFI_DATE` is null and `Operator`='TCL' and `STATUS` not in ($notInStatus) $filterSql";
 // 	// array_push($sqlList, $sql);
 
 // 	$uniSql = implode(" UNION ALL ", $sqlList);
