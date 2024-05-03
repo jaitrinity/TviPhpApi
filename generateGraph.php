@@ -31,6 +31,10 @@ if($isHoUser == "N"){
 // $operatorList = explode(",", $allOperator);
 $circleList = explode(",", $allCircle);
 
+if($loginEmpRole == "Airtel_User"){
+	$filterOperator = "Airtel";
+}
+
 $airtelColor = "#E90000";
 $bsnlColor = "#BCBDC1";
 $rjioColor = "#005AAC";
@@ -1091,23 +1095,42 @@ else if($graphType == "soSom"){
 	}
 
 	$sqlList = array();
-	$sql = "SELECT 'Airtel' as `Operator`, count(*) as `TotalSR` FROM `Airtel_SR` where `SO_DATE` is not null and `RFI_DATE` is null and `STATUS` not in ($notInStatus) $filterSql";
-	array_push($sqlList, $sql);
+	if($filterOperator == ""){
+		$sql = "SELECT 'Airtel' as `Operator`, count(*) as `TotalSR` FROM `Airtel_SR` where `SO_DATE` is not null and `RFI_DATE` is null and `STATUS` not in ($notInStatus) $filterSql";
+		array_push($sqlList, $sql);
 
-	$sql = "SELECT 'RJIO' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is not null and `RFI_DATE` is null and `Operator`='RJIO' and `STATUS` not in ($notInStatus) $filterSql";
-	array_push($sqlList, $sql);
+		$sql = "SELECT 'RJIO' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is not null and `RFI_DATE` is null and `Operator`='RJIO' and `STATUS` not in ($notInStatus) $filterSql";
+		array_push($sqlList, $sql);
 
-	$sql = "SELECT 'BSNL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is not null and `RFI_DATE` is null and `Operator`='BSNL' and `STATUS` not in ($notInStatus) $filterSql";
-	array_push($sqlList, $sql);
+		$sql = "SELECT 'BSNL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is not null and `RFI_DATE` is null and `Operator`='BSNL' and `STATUS` not in ($notInStatus) $filterSql";
+		array_push($sqlList, $sql);
 
-	$sql = "SELECT 'VIL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is not null and `RFI_DATE` is null and `Operator`='VIL' and `STATUS` not in ($notInStatus) $filterSql";
-	array_push($sqlList, $sql);
+		$sql = "SELECT 'VIL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is not null and `RFI_DATE` is null and `Operator`='VIL' and `STATUS` not in ($notInStatus) $filterSql";
+		array_push($sqlList, $sql);
 
-	// $sql = "SELECT 'TCL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is not null and `RFI_DATE` is null and `Operator`='TCL' and `STATUS` not in ($notInStatus) $filterSql";
-	// array_push($sqlList, $sql);
+		// $sql = "SELECT 'TCL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is not null and `RFI_DATE` is null and `Operator`='TCL' and `STATUS` not in ($notInStatus) $filterSql";
+		// array_push($sqlList, $sql);
 
-	$uniSql = implode(" UNION ALL ", $sqlList);
-	$result = mysqli_query($conn,$uniSql);
+		$uniSql = implode(" UNION ALL ", $sqlList);
+		$result = mysqli_query($conn,$uniSql);
+	}
+	else if($filterOperator == "Airtel"){
+		$sql = "SELECT 'Airtel' as `Operator`, count(*) as `TotalSR` FROM `Airtel_SR` where `SO_DATE` is not null and `RFI_DATE` is null and `STATUS` not in ($notInStatus) $filterSql";
+		$result = mysqli_query($conn,$sql);
+	}
+	else if($filterOperator == "BSNL"){
+		$sql = "SELECT 'BSNL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is not null and `RFI_DATE` is null and `Operator`='BSNL' and `STATUS` not in ($notInStatus) $filterSql";
+		$result = mysqli_query($conn,$sql);
+	}
+	else if($filterOperator == "RJIO"){
+		$sql = "SELECT 'RJIO' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is not null and `RFI_DATE` is null and `Operator`='RJIO' and `STATUS` not in ($notInStatus) $filterSql";
+		$result = mysqli_query($conn,$sql);
+	}
+	else if($filterOperator == "VIL"){
+		$sql = "SELECT 'VIL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `SO_DATE` is not null and `RFI_DATE` is null and `Operator`='VIL' and `STATUS` not in ($notInStatus) $filterSql";
+		$result = mysqli_query($conn,$sql);
+	}
+		
 
 	$sum = 0;
 	$valueList = array();
@@ -1167,23 +1190,42 @@ else if($graphType == "rfiSom"){
 	}
 
 	$sqlList = array();
-	$sql = "SELECT 'Airtel' as `Operator`, count(*) as `TotalSR` FROM `Airtel_SR` where `RFI_DATE` is not null and `STATUS` not in ($notInStatus) $filterSql";
-	array_push($sqlList, $sql);
+	if($filterOperator == ""){
+		$sql = "SELECT 'Airtel' as `Operator`, count(*) as `TotalSR` FROM `Airtel_SR` where `RFI_DATE` is not null and `STATUS` not in ($notInStatus) $filterSql";
+		array_push($sqlList, $sql);
 
-	$sql = "SELECT 'RJIO' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='RJIO' and `STATUS` not in ($notInStatus) $filterSql";
-	array_push($sqlList, $sql);
+		$sql = "SELECT 'RJIO' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='RJIO' and `STATUS` not in ($notInStatus) $filterSql";
+		array_push($sqlList, $sql);
 
-	$sql = "SELECT 'BSNL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='BSNL' and `STATUS` not in ($notInStatus) $filterSql";
-	array_push($sqlList, $sql);
+		$sql = "SELECT 'BSNL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='BSNL' and `STATUS` not in ($notInStatus) $filterSql";
+		array_push($sqlList, $sql);
 
-	$sql = "SELECT 'VIL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='VIL' and `STATUS` not in ($notInStatus) $filterSql";
-	array_push($sqlList, $sql);
+		$sql = "SELECT 'VIL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='VIL' and `STATUS` not in ($notInStatus) $filterSql";
+		array_push($sqlList, $sql);
 
-	// $sql = "SELECT 'TCL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `RFI_DATE` is null and `Operator`='TCL' and `STATUS` not in ($notInStatus) $filterSql";
-	// array_push($sqlList, $sql);
+		// $sql = "SELECT 'TCL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `RFI_DATE` is null and `Operator`='TCL' and `STATUS` not in ($notInStatus) $filterSql";
+		// array_push($sqlList, $sql);
 
-	$uniSql = implode(" UNION ALL ", $sqlList);
-	$result = mysqli_query($conn,$uniSql);
+		$uniSql = implode(" UNION ALL ", $sqlList);
+		$result = mysqli_query($conn,$uniSql);
+	}
+	else if($filterOperator == "Airtel"){
+		$sql = "SELECT 'Airtel' as `Operator`, count(*) as `TotalSR` FROM `Airtel_SR` where `RFI_DATE` is not null and `STATUS` not in ($notInStatus) $filterSql";
+		$result = mysqli_query($conn,$sql);
+	}
+	else if($filterOperator == "BSNL"){
+		$sql = "SELECT 'BSNL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='BSNL' and `STATUS` not in ($notInStatus) $filterSql";
+		$result = mysqli_query($conn,$sql);
+	}
+	else if($filterOperator == "RJIO"){
+		$sql = "SELECT 'RJIO' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='RJIO' and `STATUS` not in ($notInStatus) $filterSql";
+		$result = mysqli_query($conn,$sql);
+	}
+	else if($filterOperator == "VIL"){
+		$sql = "SELECT 'VIL' as `Operator`, count(*) as `TotalSR` FROM `NBS_MASTER_HDR` where `RFI_DATE` is not null and `Operator`='VIL' and `STATUS` not in ($notInStatus) $filterSql";
+		$result = mysqli_query($conn,$sql);
+	}
+
 
 	$sum = 0;
 	$valueList = array();
