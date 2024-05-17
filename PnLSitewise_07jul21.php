@@ -1,5 +1,5 @@
 <?php
-$conn=mysqli_connect("localhost","root","Tr!n!ty#321","TVIBilling");
+$conn=mysqli_connect("[hostname]","[username]","[password]","[dbname]");
 if (mysqli_connect_errno()){
 	echo "Failed to connect to MySQL: " . mysqli_connect_error();
 	exit();

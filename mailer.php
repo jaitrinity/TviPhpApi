@@ -6,11 +6,11 @@ $mail = new PHPMailer;
 $mail->isSMTP();                                      // Set mailer to use SMTP
 $mail->Host = 'smtp.gmail.com';  // Specify main and backup SMTP servers
 $mail->SMTPAuth = true;                               // Enable SMTP authentication
-$mail->Username = 'communication@trinityapplab.co.in';                 // SMTP username
-$mail->Password = 'communication@Trinity';                           // SMTP password
+$mail->Username = '[emailId]';                 // SMTP username
+$mail->Password = '[password]';                           // SMTP password
 $mail->SMTPSecure = 'tls';                            // Enable encryption, 'ssl' also accepted
 
-$mail->From = 'communication@trinityapplab.co.in';
+$mail->From = '[emailId]';
 $mail->FromName = 'Mailer';
 $mail->addAddress('jai.prakash@trinityapplab.co.in', 'Joe User');     // Add a recipient
 // $mail->addAddress('ellen@example.com');               // Name is optional
