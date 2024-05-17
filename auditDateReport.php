@@ -277,15 +277,15 @@ function sendMail($msg, $attachment){
 	$mail->isSMTP();                                      
 	$mail->Host = 'smtp.gmail.com';
 	$mail->SMTPAuth = true;
-	$mail->Username = 'communication@trinityapplab.co.in';
-	$mail->Password = 'communication@Trinity';   
+	$mail->Username = '[emailId]';
+	$mail->Password = '[password]';   
 	$mail->Port = 587;
 	$mail->SMTPSecure = 'tls';
 	
 	// To mail's
 	$mail->addAddress("jai.prakash@trinityapplab.co.in");
 
-	$mail->setFrom("communication@trinityapplab.co.in","Trinity Automation");
+	$mail->setFrom("[emailId]","Trinity Automation");
 	$mail->addAttachment($attachment);
 	$mail->isHTML(true);   
 

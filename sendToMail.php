@@ -441,8 +441,8 @@ function sendMail($toMailId, $subject, $msg, $attachment){
     $mail->isSMTP();                                      
     $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
-    $mail->Username = 'communication@trinityapplab.co.in';
-    $mail->Password = 'communication@Trinity';   
+    $mail->Username = '[emailId]';
+    $mail->Password = '[password]';   
     $mail->Port = 587;
     $mail->SMTPSecure = 'tls';
     
@@ -456,7 +456,7 @@ function sendMail($toMailId, $subject, $msg, $attachment){
     // $mail->addAddress("manishj@tower-vision.com");
     // $mail->addAddress("pushkar.tyagi@trinityapplab.co.in");
 
-    $mail->setFrom("communication@trinityapplab.co.in","Trinity");
+    $mail->setFrom("[emailId]","Trinity");
     // $mail->addAttachment($attachment);
     $mail->isHTML(true);   
 
