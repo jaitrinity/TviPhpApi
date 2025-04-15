@@ -1,5 +1,9 @@
 <?php
 include("cpDbConfig.php");
+$methodType = $_SERVER['REQUEST_METHOD'];
+if($methodType != "POST"){
+	return;
+}
 $json = file_get_contents('php://input');
 $jsonData=json_decode($json);
 

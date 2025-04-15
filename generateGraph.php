@@ -25,7 +25,9 @@ $notInStatus = "'NB97','NB98','NB99','NB100','NB101','NB102','NB104','NB105','NB
 $allCircle = "AP,BH,CG,DL,GJ,HP,HR,JH,JK,KL,KT,MH,MP,OR,PB,RJ,TN,UPE,UPW,WB";
 
 if($isHoUser == "N"){
-	$filterOperator = $operator;
+	if($operator != "TVI"){
+		$filterOperator = $operator;
+	}
 	$allCircle = $circleName;
 }
 // $operatorList = explode(",", $allOperator);

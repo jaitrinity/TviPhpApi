@@ -49,7 +49,9 @@ if($operator != "" && $operator != "TVI"){
 	$filterSql .= " and Operator in ('".$filterOperator."') ";
 }
 if($filterProductType != ""){
-	$filterSql .= " and TAB_NAME = '".$filterProductType."' ";
+	if($reportType != 3){
+		$filterSql .= " and TAB_NAME = '".$filterProductType."' ";
+	}
 }
 
 // Summary Report
@@ -373,7 +375,7 @@ else if($reportType == 2){
 		fputcsv($output, $exportData);
 	}
 }
-
+// Acive Asset
 else if($reportType == 3){
 	$sql = "SELECT h.SR_NUMBER, h.SP_NUMBER, h.SO_NUMBER, h.CIRCLE_NAME, h.AIRTEL_SITE_ID as Site_Id, h.TVI_SITE_ID, h.TAB_NAME as Product_Type, h.SR_DATE, h.SP_DATE, h.SO_DATE, (case when h.SUGGESTED_LATITUDE is not null then h.SUGGESTED_LATITUDE else h.LATITUDE_1 end) as LATITUDE, (case when h.SUGGESTED_LONGITUDE is not null then h.SUGGESTED_LONGITUDE else h.LONGITUDE_1 end) as LONGITUDE, h.Operator, h.RFI_DATE, h.RFI_ACCEPTED_DATE, h.RFS_DATE, h.Site_Name, h.SITE_TYPE as Tower_Type, h.TECHNOLOGY, h.BTS_TYPE, h.Total_Rated_Power_in_KW as Total_Rated_Power_in_Watt, h.Additional_Load,  h.NO_OF_MICROWAVE, mw.MICROWAVE_HEIGHT_1, mw.MICROWAVE_DIA_1, mw.MICROWAVE_AZIMUTH_1, mw.MICROWAVE_HEIGHT_2, mw.MICROWAVE_DIA_2, mw.MICROWAVE_AZIMUTH_2, mw.MICROWAVE_HEIGHT_3, mw.MICROWAVE_DIA_3, mw.MICROWAVE_AZIMUTH_3, mw.MICROWAVE_HEIGHT_4, mw.MICROWAVE_DIA_4, mw.MICROWAVE_AZIMUTH_4, mw.MICROWAVE_HEIGHT_5, mw.MICROWAVE_DIA_5, mw.MICROWAVE_AZIMUTH_5, mw.MICROWAVE_HEIGHT_6, mw.MICROWAVE_DIA_6, mw.MICROWAVE_AZIMUTH_6, h.NO_OF_RRU, rru.RRU_MAKE_1, rru.RRU_MODEL_1, rru.RRU_RATED_POWER_CONSUMPTION_1, rru.RRU_WEIGHT_1, rru.RRU_MAKE_2, rru.RRU_MODEL_2, rru.RRU_RATED_POWER_CONSUMPTION_2, rru.RRU_WEIGHT_2, rru.RRU_MAKE_3, rru.RRU_MODEL_3, rru.RRU_RATED_POWER_CONSUMPTION_3, rru.RRU_WEIGHT_3, rru.RRU_MAKE_4, rru.RRU_MODEL_4, rru.RRU_RATED_POWER_CONSUMPTION_4, rru.RRU_WEIGHT_4, rru.RRU_MAKE_5, rru.RRU_MODEL_5, rru.RRU_RATED_POWER_CONSUMPTION_5, rru.RRU_WEIGHT_5, rru.RRU_MAKE_6, rru.RRU_MODEL_6, rru.RRU_RATED_POWER_CONSUMPTION_6, rru.RRU_WEIGHT_6, rru.RRU_MAKE_7, rru.RRU_MODEL_7, rru.RRU_RATED_POWER_CONSUMPTION_7, rru.RRU_WEIGHT_7, rru.RRU_MAKE_8, rru.RRU_MODEL_8, rru.RRU_RATED_POWER_CONSUMPTION_8, rru.RRU_WEIGHT_8, rru.RRU_MAKE_9, rru.RRU_MODEL_9, rru.RRU_RATED_POWER_CONSUMPTION_9, rru.RRU_WEIGHT_9, rru.RRU_MAKE_10, rru.RRU_MODEL_10, rru.RRU_RATED_POWER_CONSUMPTION_10, rru.RRU_WEIGHT_10, rru.RRU_MAKE_11, rru.RRU_MODEL_11, rru.RRU_RATED_POWER_CONSUMPTION_11, rru.RRU_WEIGHT_11, rru.RRU_MAKE_12, rru.RRU_MODEL_12, rru.RRU_RATED_POWER_CONSUMPTION_12, rru.RRU_WEIGHT_12, rru.RRU_MAKE_13, rru.RRU_MODEL_13, rru.RRU_RATED_POWER_CONSUMPTION_13, rru.RRU_WEIGHT_13, rru.RRU_MAKE_14, rru.RRU_MODEL_14, rru.RRU_RATED_POWER_CONSUMPTION_14, rru.RRU_WEIGHT_14, rru.RRU_MAKE_15, rru.RRU_MODEL_15, rru.RRU_RATED_POWER_CONSUMPTION_15, rru.RRU_WEIGHT_15, rru.RRU_MAKE_16, rru.RRU_MODEL_16, rru.RRU_RATED_POWER_CONSUMPTION_16, rru.RRU_WEIGHT_16, rru.RRU_MAKE_17, rru.RRU_MODEL_17, rru.RRU_RATED_POWER_CONSUMPTION_17, rru.RRU_WEIGHT_17, rru.RRU_MAKE_18, rru.RRU_MODEL_18, rru.RRU_RATED_POWER_CONSUMPTION_18, rru.RRU_WEIGHT_18, rru.RRU_MAKE_19, rru.RRU_MODEL_19, rru.RRU_RATED_POWER_CONSUMPTION_19, rru.RRU_WEIGHT_19, rru.RRU_MAKE_20, rru.RRU_MODEL_20, rru.RRU_RATED_POWER_CONSUMPTION_20, rru.RRU_WEIGHT_20, rru.RRU_MAKE_21, rru.RRU_MODEL_21, rru.RRU_RATED_POWER_CONSUMPTION_21, rru.RRU_WEIGHT_21, rru.RRU_MAKE_22, rru.RRU_MODEL_22, rru.RRU_RATED_POWER_CONSUMPTION_22, rru.RRU_WEIGHT_22, rru.RRU_MAKE_23, rru.RRU_MODEL_23, rru.RRU_RATED_POWER_CONSUMPTION_23, rru.RRU_WEIGHT_23, rru.RRU_MAKE_24, rru.RRU_MODEL_24, rru.RRU_RATED_POWER_CONSUMPTION_24, rru.RRU_WEIGHT_24, rru.RRU_MAKE_25, rru.RRU_MODEL_25, rru.RRU_RATED_POWER_CONSUMPTION_25, rru.RRU_WEIGHT_25, h.NO_OF_BTS, bts.BTS_MAKE_1, bts.BTS_MODEL_1, bts.BTS_FLOOR_SPACE_1, bts.BTS_POWER_1, bts.BTS_MAKE_2, bts.BTS_MODEL_2, bts.BTS_FLOOR_SPACE_2, bts.BTS_POWER_2, bts.BTS_MAKE_3, bts.BTS_MODEL_3, bts.BTS_FLOOR_SPACE_3, bts.BTS_POWER_3, bts.BTS_MAKE_4, bts.BTS_MODEL_4, bts.BTS_FLOOR_SPACE_4, bts.BTS_POWER_4, h.NO_OF_BBU, bbu.BBU_MAKE_1, bbu.BBU_MODEL_1, bbu.BBU_RATED_POWER_CONSUMPTION_1, bbu.BBU_Positioning_1, bbu.BBU_MAKE_2, bbu.BBU_MODEL_2, bbu.BBU_RATED_POWER_CONSUMPTION_2, bbu.BBU_Positioning_2, bbu.BBU_MAKE_3, bbu.BBU_MODEL_3, bbu.BBU_RATED_POWER_CONSUMPTION_3, bbu.BBU_Positioning_3, bbu.BBU_MAKE_4, bbu.BBU_MODEL_4, bbu.BBU_RATED_POWER_CONSUMPTION_4, bbu.BBU_Positioning_4, bbu.BBU_MAKE_5, bbu.BBU_MODEL_5, bbu.BBU_RATED_POWER_CONSUMPTION_5, bbu.BBU_Positioning_5, bbu.BBU_MAKE_6, bbu.BBU_MODEL_6, bbu.BBU_RATED_POWER_CONSUMPTION_6, bbu.BBU_Positioning_6, h.NO_OF_RF_ANTENNA, rf.RF_HEIGHT_1, rf.RF_WEIGHT_1, rf.RF_AZIMUTH_1, rf.RF_MAKE_1, rf.RF_MODEL_1, rf.RF_GAIN_1, rf.RF_BAND_1, rf.RF_HEIGHT_2, rf.RF_WEIGHT_2, rf.RF_AZIMUTH_2, rf.RF_MAKE_2, rf.RF_MODEL_2, rf.RF_GAIN_2, rf.RF_BAND_2, rf.RF_HEIGHT_3, rf.RF_WEIGHT_3, rf.RF_AZIMUTH_3, rf.RF_MAKE_3, rf.RF_MODEL_3, rf.RF_GAIN_3, rf.RF_BAND_3, rf.RF_HEIGHT_4, rf.RF_WEIGHT_4, rf.RF_AZIMUTH_4, rf.RF_MAKE_4, rf.RF_MODEL_4, rf.RF_GAIN_4, rf.RF_BAND_4, rf.RF_HEIGHT_5, rf.RF_WEIGHT_5, rf.RF_AZIMUTH_5, rf.RF_MAKE_5, rf.RF_MODEL_5, rf.RF_GAIN_5, rf.RF_BAND_5, rf.RF_HEIGHT_6, rf.RF_WEIGHT_6, rf.RF_AZIMUTH_6, rf.RF_MAKE_6, rf.RF_MODEL_6, rf.RF_GAIN_6, rf.RF_BAND_6, rf.RF_HEIGHT_7, rf.RF_WEIGHT_7, rf.RF_AZIMUTH_7, rf.RF_MAKE_7, rf.RF_MODEL_7, rf.RF_GAIN_7, rf.RF_BAND_7, rf.RF_HEIGHT_8, rf.RF_WEIGHT_8, rf.RF_AZIMUTH_8, rf.RF_MAKE_8, rf.RF_MODEL_8, rf.RF_GAIN_8, rf.RF_BAND_8, rf.RF_HEIGHT_9, rf.RF_WEIGHT_9, rf.RF_AZIMUTH_9, rf.RF_MAKE_9, rf.RF_MODEL_9, rf.RF_GAIN_9, rf.RF_BAND_9, rf.RF_HEIGHT_10, rf.RF_WEIGHT_10, rf.RF_AZIMUTH_10, rf.RF_MAKE_10, rf.RF_MODEL_10, rf.RF_GAIN_10, rf.RF_BAND_10, rf.RF_HEIGHT_11, rf.RF_WEIGHT_11, rf.RF_AZIMUTH_11, rf.RF_MAKE_11, rf.RF_MODEL_11, rf.RF_GAIN_11, rf.RF_BAND_11, rf.RF_HEIGHT_12, rf.RF_WEIGHT_12, rf.RF_AZIMUTH_12, rf.RF_MAKE_12, rf.RF_MODEL_12, rf.RF_GAIN_12, rf.RF_BAND_12, rf.RF_HEIGHT_13, rf.RF_WEIGHT_13, rf.RF_AZIMUTH_13, rf.RF_MAKE_13, rf.RF_MODEL_13, rf.RF_GAIN_13, rf.RF_BAND_13, rf.RF_HEIGHT_14, rf.RF_WEIGHT_14, rf.RF_AZIMUTH_14, rf.RF_MAKE_14, rf.RF_MODEL_14, rf.RF_GAIN_14, rf.RF_BAND_14, rf.RF_HEIGHT_15, rf.RF_WEIGHT_15, rf.RF_AZIMUTH_15, rf.RF_MAKE_15, rf.RF_MODEL_15, rf.RF_GAIN_15, rf.RF_BAND_15, rf.RF_HEIGHT_16, rf.RF_WEIGHT_16, rf.RF_AZIMUTH_16, rf.RF_MAKE_16, rf.RF_MODEL_16, rf.RF_GAIN_16, rf.RF_BAND_16, rf.RF_HEIGHT_17, rf.RF_WEIGHT_17, rf.RF_AZIMUTH_17, rf.RF_MAKE_17, rf.RF_MODEL_17, rf.RF_GAIN_17, rf.RF_BAND_17, rf.RF_HEIGHT_18, rf.RF_WEIGHT_18, rf.RF_AZIMUTH_18, rf.RF_MAKE_18, rf.RF_MODEL_18, rf.RF_GAIN_18, rf.RF_BAND_18, rf.RF_HEIGHT_19, rf.RF_WEIGHT_19, rf.RF_AZIMUTH_19, rf.RF_MAKE_19, rf.RF_MODEL_19, rf.RF_GAIN_19, rf.RF_BAND_19, rf.RF_HEIGHT_20, rf.RF_WEIGHT_20, rf.RF_AZIMUTH_20, rf.RF_MAKE_20, rf.RF_MODEL_20, rf.RF_GAIN_20, rf.RF_BAND_20, rf.RF_HEIGHT_21, rf.RF_WEIGHT_21, rf.RF_AZIMUTH_21, rf.RF_MAKE_21, rf.RF_MODEL_21, rf.RF_GAIN_21, rf.RF_BAND_21, rf.RF_HEIGHT_22, rf.RF_WEIGHT_22, rf.RF_AZIMUTH_22, rf.RF_MAKE_22, rf.RF_MODEL_22, rf.RF_GAIN_22, rf.RF_BAND_22, rf.RF_HEIGHT_23, rf.RF_WEIGHT_23, rf.RF_AZIMUTH_23, rf.RF_MAKE_23, rf.RF_MODEL_23, rf.RF_GAIN_23, rf.RF_BAND_23, rf.RF_HEIGHT_24, rf.RF_WEIGHT_24, rf.RF_AZIMUTH_24, rf.RF_MAKE_24, rf.RF_MODEL_24, rf.RF_GAIN_24, rf.RF_BAND_24, rf.RF_HEIGHT_25, rf.RF_WEIGHT_25, rf.RF_AZIMUTH_25, rf.RF_MAKE_25, rf.RF_MODEL_25, rf.RF_GAIN_25, rf.RF_BAND_25, h.NO_OF_MCB, mcb.MCB_RATING_1, mcb.MCB_RATING_2, mcb.MCB_RATING_3, mcb.MCB_RATING_4, mcb.MCB_RATING_5, mcb.MCB_RATING_6, mcb.MCB_RATING_7, mcb.MCB_RATING_8, mcb.MCB_RATING_9, mcb.MCB_RATING_10, h.No_of_ODSC, odsc.ODSC_MAKE_1, odsc.ODSC_MODEL_1, odsc.ODSC_MAKE_2, odsc.ODSC_MODEL_2, odsc.ODSC_MAKE_3, odsc.ODSC_MODEL_3, odsc.ODSC_MAKE_4, odsc.ODSC_MODEL_4 FROM NBS_MASTER_HDR_import h left join MW_Asset mw on h.SR_NUMBER = mw.SR_NUMBER left join RRU_Asset rru on h.SR_NUMBER = rru.SR_NUMBER left join BTS_Asset bts on h.SR_NUMBER = bts.SR_NUMBER left join BBU_Asset bbu on h.SR_NUMBER = bbu.SR_NUMBER left join RF_Asset rf on h.SR_NUMBER = rf.SR_NUMBER left join MCB_Asset mcb on h.SR_NUMBER = mcb.SR_NUMBER left join ODSC_Asset odsc on h.SR_NUMBER = odsc.SR_NUMBER where h.SR_NUMBER is not null ".$filterSql;
 
@@ -388,6 +390,31 @@ else if($reportType == 3){
 	
 	header('Content-Type: text/csv; charset=utf-8');
 	header('Content-Disposition: attachment; filename=Active_Asset_Report.csv');
+	$output = fopen('php://output', 'w');
+	fputcsv($output, $columnName);
+
+	mysqli_data_seek($result, 0);
+	while($row=mysqli_fetch_assoc($result)){
+		$exportData = array();
+		foreach ($columnName as $key => $value) {
+			array_push($exportData, $row[$value]);
+		}
+		fputcsv($output, $exportData);
+	}
+}
+// Site master
+else if($reportType == 4){
+	$filterSql = " and `Circle` in ('".$filterCircleName."') ";
+	$sql="SELECT `Circle`, `TVISiteID`, `Anchor_Site_Built_for`, `Current_Anchor`, `Site Name`, `Latitude`, `Longitude`, `Address`, `District`, `GST_State`, `Cluster`, `Wind Zone`, `TypeofSite`, `Twr Make`, `Bldg Ht`, `Tower Height Mtrs`, `AGL`, `OD/ID`, `Airtel`, `BSNL`, `Voda`, `Idea`, `MTNL`, `RJIO`, `TCL Wimax`, `TCL (NLD)`, `TTSL/ TTML GSM`, `TTSL / TTML CDMA`, `VTL`, `VIL`, `TCL` FROM `Site_Master` WHERE 1=1 $filterSql and (`Is_Deleted` is null or `Is_Deleted`='N')";
+	$result = mysqli_query($conn,$sql);
+	$row=mysqli_fetch_assoc($result);
+	$columnName = array();
+	foreach ($row as $key => $value) {
+		array_push($columnName, $key);
+	}
+	
+	header('Content-Type: text/csv; charset=utf-8');
+	header('Content-Disposition: attachment; filename=Site_Master.csv');
 	$output = fopen('php://output', 'w');
 	fputcsv($output, $columnName);
 
